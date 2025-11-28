@@ -1,0 +1,52 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: conduit-backend-master/Dockerfile
+    image: conduit-backend:latest
+    env_file:
+      - example.env
+    environment:
+      # allow overriding or adding extra non-critical vars here
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CONDUIT_DB_PATH=${CONDUIT_DB_PATH}
+      - CONDUIT_MEDIA_DIR=${CONDUIT_MEDIA_DIR}
+      - CONDUIT_LOG_FILE=${CONDUIT_LOG_FILE}
+    ports:
+      - "8000:8000"        # host:container
+    volumes:
+      - ./data/backend:/app/data          # persist DB and backend data
+      - ./data/backend_media:/app/media   # persist media files served by Django
+      - ./logs/backend:/var/log/conduit   # persist logs
+      - ./conduit-backend-master:/app     # optional: mount code for live edits (remove in prod)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: conduit-frontend-master/Dockerfile
+    image: conduit-frontend:latest
+    env_file:
+      - .env
+    environment:
+      - FRONTEND_API_URL=${FRONTEND_API_URL}
+    ports:
+      - "8282:80"       # The frontend must be reachable via hostIP:8282
+    volumes:
+      - ./data/frontend:/usr/share/nginx/html   # optional: persist static if desired
+      - ./logs/frontend:/var/log/nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
