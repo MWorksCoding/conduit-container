@@ -22,11 +22,6 @@ services:
       - ./logs/backend:/var/log/conduit   # persist logs
       - ./conduit-backend-master:/app     # optional: mount code for live edits (remove in prod)
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   frontend:
     build:
@@ -40,13 +35,7 @@ services:
     ports:
       - "8282:80"       # The frontend must be reachable via hostIP:8282
     volumes:
-      - ./data/frontend:/usr/share/nginx/html   # optional: persist static if desired
       - ./logs/frontend:/var/log/nginx
     depends_on:
       - backend
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3

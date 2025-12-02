@@ -1,7 +1,7 @@
 # Backend Dockerfile (Django + Gunicorn) - multi-stage
 
 # --- builder: install dependencies and wheels
-FROM python:3.11-slim AS builder
+FROM python:3.6-slim AS builder
 WORKDIR /build
 
 # system deps required for common Python packages (adjust if you need more)
@@ -17,12 +17,13 @@ RUN python -m pip install --upgrade pip setuptools wheel
 RUN pip wheel --wheel-dir=/build/wheels -r /build/requirements.txt
 
 # --- final: slim runtime image
-FROM python:3.11-slim AS final
+FROM python:3.6-slim AS final
 WORKDIR /app
 
 # runtime packages (kept minimal)
+# runtime packages (kept minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 && rm -rf /var/lib/apt/lists/*
+    libpq5 curl && rm -rf /var/lib/apt/lists/*
 
 # copy wheelhouse and install
 COPY --from=builder /build/wheels /wheels
