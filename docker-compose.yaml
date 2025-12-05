@@ -1,41 +1,32 @@
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: conduit-backend-master/Dockerfile
-    image: conduit-backend:latest
-    env_file:
-      - example.env
-    environment:
-      # allow overriding or adding extra non-critical vars here
-      - DJANGO_DEBUG=${DJANGO_DEBUG}
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
-      - CONDUIT_DB_PATH=${CONDUIT_DB_PATH}
-      - CONDUIT_MEDIA_DIR=${CONDUIT_MEDIA_DIR}
-      - CONDUIT_LOG_FILE=${CONDUIT_LOG_FILE}
-    ports:
-      - "8000:8000"        # host:container
-    volumes:
-      - ./data/backend:/app/data          # persist DB and backend data
-      - ./data/backend_media:/app/media   # persist media files served by Django
-      - ./logs/backend:/var/log/conduit   # persist logs
-      - ./conduit-backend-master:/app     # optional: mount code for live edits (remove in prod)
-    restart: unless-stopped
-
   frontend:
     build:
-      context: .
-      dockerfile: conduit-frontend-master/Dockerfile
+      context: ./conduit-frontend-master
+      dockerfile: Dockerfile
     image: conduit-frontend:latest
-    env_file:
-      - .env
-    environment:
-      - FRONTEND_API_URL=${FRONTEND_API_URL}
     ports:
-      - "8282:80"       # The frontend must be reachable via hostIP:8282
+      - "8282:80"
+    restart: on-failure
     volumes:
-      - ./logs/frontend:/var/log/nginx
-    depends_on:
-      - backend
-    restart: unless-stopped
+      - frontend_data:/usr/share/nginx/html
+    environment:
+      - FRONTEND_API_URL=http://backend:8000/api
+
+  backend:
+    build:
+      context: ./conduit-backend-master
+      dockerfile: Dockerfile
+    image: conduit-backend:latest
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    env_file:
+      - ./conduit-backend-master/.env
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/var/log/conduit
+
+volumes:
+  frontend_data:
+  backend_data:
+  backend_logs:
