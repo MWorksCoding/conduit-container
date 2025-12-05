@@ -1,13 +1,13 @@
 # Conduit Fullstack Container Project
 
-A Conduit project with Angular on the frontend and Django on the backend, containerized and orchestrated through Docker Compose for simple deployment.
+A complete Conduit demo application featuring an Angular frontend and a Django backend, packaged with Docker and Docker Compose for simple, reproducible setup and deployment.
 
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
 2. [Quickstart](#-quickstart)
 3. [Usage](#-usage)
-   - [Checking Server Status](#checking-server-status)
+   - [Checking Docker Logs](#checking-docker-logs)
    - [Create a Docker Container](#-create-a-docker-container)
    - [Docker Management Commands](#docker-compose-commands)
 4. [Project Checklist](#project-checklist)
@@ -38,53 +38,69 @@ Navigate to the root project directory you just cloned.
 cd conduit-container
 ```
 
-Inside your project root directory, we need to create a .env file for your environment variables.
-You can copy and paste the content from [example.env](./example.env), but please keep in mind that the values ​​should only be used for local development for security reasons.
+From here switch to conduit-backend-master directory.
+```
+cd conduit-backend-master
+```
+> [!NOTE]
+> Inside your conduit-backend-master directory, you need to create a `.env` file for your environment variables.  
+> You can copy and paste the content from [example.env](./conduit-backend-master/example.env) by running:
+>
+> ```
+> cp example.env .env
+> ```
+>
+> Please keep in mind that the values should only be used for local development for security reasons.
 
 Docker Compose automatically loads .env files, so you don’t need to reference it manually.
 
-From here, you can build the Docker container and start the server with Docker Compose:
+Go back to parent directory.
 ```
-docker compose build --no-cache
+cd ..
 ```
 
+From here start the server with Docker Compose. The both Dockerfiles from backend und frontend directories are called.
 ```
-docker compose up
+docker compose up -d --build
 ```
+
+You can check our your localhost at port 8080:
+```
+http://localhost:8282
+```
+
+Or if running on a server with a public IP:
+```
+http://<your-ip>:8282
+```
+
+Here you can see the Conduit Website. Feel free to sign up und create your own feed.
 
 Please check the list of typical Docker commands in the section [Docker Management Commands](#docker-compose-commands)
 
 ## 🧑‍💻 Usage
 
-### Checking Server Status
+### Checking Docker Logs
 
-
-First, create a virtual environment:
+Once the App is running you can check the Logs for every container.
+Check the frontend container logs with:
 ```
-python -m venv venv
-```
-
-Activate your venv on Mac / Linux:
-```
-source venv/bin/activate
+docker logs conduit-container-frontend-1
 ```
 
-Activate your venv on Windows:
+Check the backend container logs with:
 ```
-.\venv\Scripts\activate
+docker logs conduit-container-backend-1
 ```
 
-Install dependencies:
-```
-pip install -r requirements.txt
-```
 
 ### 🐳 Create a Docker Container
 
 General Informations:
 
-To containerize a project, we need to create a file named [Dockerfile](./Dockerfile).
-To reduce image size and improve build performance, we need to create a [.dockerignore](./.dockerignore) file.
+To containerize a project, we need to create a file named `Dockerfile`. In our case we man to containerize a frontend app and a backend app. So both directory needs to have a individual `Dockerfile`. You check the [frontend Dockerfile](./conduit-frontend-master/Dockerfile) here and the [backend Dockerfile](./conduit-backend-master/Dockerfile) here. 
+To reduce image size and improve build performance, we need to create a `.dockerignore` file for both directories. You check the [frontend .dockerignore](./conduit-frontend-master/.dockerignore) here and the [backend .dockerignore](./conduit-backend-master/.dockerignore) here. 
+
 That [docker-compose.yml](./docker-compose.yaml) file tells Docker exactly how to build, run, configure, and manage your project — all in one place.
 
 In our case all required files already exist. There is nothing to do here.
