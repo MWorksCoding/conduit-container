@@ -76,6 +76,25 @@ http://<your-ip>:8282
 
 Here you can see the Conduit Website. Feel free to sign up und create your own feed.
 
+A superuser is an administrator account that has full access to Django’s built-in admin panel.
+As a superuser you can manage all data in the backend: create, edit, or delete users, moderate articles, comments, profiles and inspect or fix data manually.
+
+For creating a superuse we need to find out the running Docker Backend Container ID
+
+```
+docker compose ps
+```
+
+Then you paste this container id here to access the docker container and create a superuser
+```
+docker exec -it <container_id_or_name> python manage.py createsuperuser
+```
+
+You need to enter a username, a email address and a password.
+Once completed, the admin account is created.
+After that log in to the Django admin by opening http://<your-server-ip>:8000/admin
+Log in with the credentials you just created.
+
 Please check the list of typical Docker commands in the section [Docker Management Commands](#docker-compose-commands)
 
 ## 🧑‍💻 Usage
